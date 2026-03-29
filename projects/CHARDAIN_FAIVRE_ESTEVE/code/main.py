@@ -8,6 +8,7 @@ import sys
 sys.path.insert(0, os.path.dirname(__file__))
 
 from data_collection import fetch_walmart_stock
+from download_data import download_pklot
 from merge import build_dataset
 from model import evaluate
 
@@ -20,9 +21,11 @@ from sklearn.metrics import accuracy_score
 def main():
     print("=== First step: Fetching Walmart stock data ===")
     prices = fetch_walmart_stock()
+    os.makedirs("data", exist_ok=True)
     prices.to_csv("data/wmt_stock.csv")
 
     print("\n=== Now, we are building the dataset ===")
+    download_pklot()
     df = build_dataset()
     df.to_csv("data/dataset.csv")
     print(f"Dataset shape: {df.shape}")

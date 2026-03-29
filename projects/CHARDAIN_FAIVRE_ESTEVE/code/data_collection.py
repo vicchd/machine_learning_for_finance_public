@@ -18,8 +18,3 @@ def fetch_consumer_confidence(filepath="data/consumer_confidence.csv"):
     cci = pd.read_csv(filepath, parse_dates=["DATE"], index_col="DATE")
     cci.columns = ["consumer_confidence"]
     return cci.resample("W").interpolate(method="linear")
-
-if __name__ == "__main__":
-    prices = fetch_walmart_stock()
-    prices.to_csv("data/wmt_stock.csv")
-    print(prices.tail())

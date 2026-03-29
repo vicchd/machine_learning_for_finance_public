@@ -40,12 +40,3 @@ def compute_occupancy(annotations_path):
     daily = df.groupby("date")["occupied"].mean().reset_index()
     daily.columns = ["date", "occupancy_rate"]
     return daily.set_index("date")
-
-
-if __name__ == "__main__":
-    for split in ["train", "valid", "test"]:
-        path = f"data/images/{split}/_annotations.coco.json"
-        if os.path.exists(path):
-            df = compute_occupancy(path)
-            print(f"\n{split}:")
-            print(df.head())

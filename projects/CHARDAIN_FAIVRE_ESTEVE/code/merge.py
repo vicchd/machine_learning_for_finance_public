@@ -22,10 +22,3 @@ def build_dataset():
     df["price_direction"] = (df["Close"].diff() > 0).astype(int)
     df = df.dropna()
     return df
-
-
-if __name__ == "__main__":
-    df = build_dataset()
-    df.to_csv("data/dataset.csv")
-    print(df.head(10))
-    print(f"\nTotal samples: {len(df)}")
