@@ -9,7 +9,8 @@ from features import compute_occupancy
 def build_dataset():
     """Merge occupancy, stock, confidence, and search-trend signals."""
     prices = fetch_walmart_stock()
-    prices = prices.resample("D").interpolate(method="linear")
+    prices.index = pd.to_datetime(prices.index)
+    prices = prices.sort_index()
 
     occupancy = compute_occupancy(f"data/annotations.coco.json")
     occupancy.index = pd.to_datetime(occupancy.index)
@@ -27,5 +28,7 @@ def build_dataset():
     df = df.join(trends, how="inner")
     df = df.join(prices, how="inner")
     df["price_direction"] = (df["Close"].diff() > 0).astype(int)
+
+    df["weekly_return"] = (df["Close"].shift(-5) / df["Close"]) - 1 # 5-day forward return for supervised regression later.
     df = df.dropna()
     return df

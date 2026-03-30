@@ -1,6 +1,10 @@
-kagglehub==1.0.0
-pandas==2.3.3
-scikit-learn==1.8.0
-yfinance==1.2.0
+matplotlib==3.10.8
+numpy==2.4.4
+pandas==3.0.1
 pytrends==4.9.2
-pandas-datareader==0.10.0
+scikit-learn==1.8.0
+scipy==1.17.1
+setuptools==82.0.1
+statsmodels==0.14.6
+xgboost==3.2.0
+yfinance==1.2.0

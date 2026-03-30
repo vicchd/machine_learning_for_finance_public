@@ -1,45 +1,45 @@
-"""
-The main script runs the full pipeline: data collection, feature extraction, merging, and modeling.
-"""
+"""Orchestrate the full pipeline end-to-end."""
+
+from __future__ import annotations
 
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(__file__))
 
+from analysis import run_granger_test
+from backtest import run_backtest
 from merge import build_dataset
-from model import evaluate
-
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+import model as model_module
 
 
-def main():
-    print("\n=== First: building the dataset ===")
+def main() -> None:
+    """Run data preparation, modeling, backtesting, and Granger analysis."""
+
+    # Build dataset and save it.
+    print("\n=== Building dataset ===")
     df = build_dataset()
     df.to_csv("data/dataset.csv")
+
+    # Print dataset info.
     print(f"Dataset shape: {df.shape}")
+    print("Dataset head:")
+    print(df.head())
 
-    print("\n=== Second: Training models ===")
-    X = df[["occupancy_rate"]]
-    y = df["price_direction"]
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+    # Train and evaluate models using the full feature set.
+    print("\n=== Model training & evaluation ===")
+    model_module.main()
 
-    majority = y_train.mode()[0]
-    naive_acc = accuracy_score(y_test, [majority] * len(y_test))
-    print(f"Naive benchmark accuracy: {naive_acc:.2f}")
+    # Run backtest using the merged dataset.
+    print("\n=== Backtest ===")
+    run_backtest(df)
 
-    lr = LogisticRegression()
-    lr.fit(X_train, y_train)
-    evaluate(lr, X_test, y_test, "Logistic Regression")
+    # Run Granger causality test.
+    print("\n=== Granger causality test ===")
+    run_granger_test(df, max_lag=3)
 
-    rf = RandomForestClassifier(n_estimators=100, random_state=42)
-    rf.fit(X_train, y_train)
-    evaluate(rf, X_test, y_test, "Random Forest")
-
-    print("\n=== All steps completed ===")
+    # Final summary message.
+    print("\n=== Pipeline completed ===")
 
 
 if __name__ == "__main__":
