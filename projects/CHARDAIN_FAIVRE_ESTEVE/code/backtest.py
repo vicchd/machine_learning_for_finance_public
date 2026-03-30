@@ -113,6 +113,8 @@ def run_backtest(df: pd.DataFrame) -> None:
     model.fit(X_train, y_train)
 
     preds = model.predict(X_test).astype(int)
+    print(f"Predictions: {preds}")
+    print(f"Fraction predicted up: {preds.mean():.2f}")
 
     # Daily returns (buy-and-hold) based on Close.pct_change().
     daily_returns = close.pct_change().fillna(0.0)

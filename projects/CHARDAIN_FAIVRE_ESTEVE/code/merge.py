@@ -25,8 +25,13 @@ def build_dataset():
     trends = trends.sort_index()
 
     df = occupancy.join(cci, how="inner")
+    # df = df.join(trends, how="inner")
+    # df = df.join(prices, how="inner")
+    print(f"After occupancy+CCI join: {df.shape}")
     df = df.join(trends, how="inner")
+    print(f"After +trends join: {df.shape}")
     df = df.join(prices, how="inner")
+    print(f"After +prices join: {df.shape}")
     df["price_direction"] = (df["Close"].diff() > 0).astype(int)
 
     df["weekly_return"] = (df["Close"].shift(-5) / df["Close"]) - 1 # 5-day forward return for supervised regression later.

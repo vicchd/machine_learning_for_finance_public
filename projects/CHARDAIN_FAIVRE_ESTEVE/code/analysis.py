@@ -7,6 +7,9 @@ from typing import Dict
 import pandas as pd
 from statsmodels.tsa.stattools import grangercausalitytests
 
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning)
+
 
 def run_granger_test(df: pd.DataFrame, max_lag: int = 3) -> None:
     """Run Granger causality tests: `occupancy_rate` -> `price_direction`.
