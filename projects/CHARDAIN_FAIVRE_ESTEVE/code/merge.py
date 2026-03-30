@@ -1,24 +1,31 @@
 """
-Merges parking occupancy rates with Walmart stock prices.
+Merges occupancy, confidence, trend, and Walmart stock signals.
 """
 
 import pandas as pd
+from data_collection import fetch_walmart_stock, fetch_consumer_confidence, fetch_google_trends
 from features import compute_occupancy
 
 def build_dataset():
-    """Merge occupancy data from all splits with Walmart weekly closing prices."""
-    splits = ["train", "valid", "test"]
-    occupancy = pd.concat([
-        compute_occupancy(f"data/images/{s}/_annotations.coco.json")
-        for s in splits
-    ])
-    occupancy = occupancy.groupby("date").mean()
-    occupancy.index = pd.to_datetime(occupancy.index)
-
-    prices = pd.read_csv("data/wmt_stock.csv", parse_dates=["Date"], index_col="Date")
+    """Merge occupancy, stock, confidence, and search-trend signals."""
+    prices = fetch_walmart_stock()
     prices = prices.resample("D").interpolate(method="linear")
 
-    df = occupancy.join(prices, how="inner")
+    occupancy = compute_occupancy(f"data/annotations.coco.json")
+    occupancy.index = pd.to_datetime(occupancy.index)
+    occupancy = occupancy.sort_index()
+
+    cci = fetch_consumer_confidence()
+    cci.index = pd.to_datetime(cci.index)
+    cci = cci.sort_index()
+
+    trends = fetch_google_trends()
+    trends.index = pd.to_datetime(trends.index)
+    trends = trends.sort_index()
+
+    df = occupancy.join(cci, how="inner")
+    df = df.join(trends, how="inner")
+    df = df.join(prices, how="inner")
     df["price_direction"] = (df["Close"].diff() > 0).astype(int)
     df = df.dropna()
     return df

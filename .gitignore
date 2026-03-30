@@ -1,3 +1,9 @@
 .vscode/
 
 __pycache__/
+
+data/wmt_stock.csv
+data/dataset.csv
+data/consumer_confidence.csv
+
+.venv/

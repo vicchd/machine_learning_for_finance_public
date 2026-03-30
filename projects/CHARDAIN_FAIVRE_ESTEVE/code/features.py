@@ -20,7 +20,7 @@ def compute_occupancy(annotations_path):
     """
     Compute daily parking occupancy rate from COCO annotations.
     Category 1 = occupied, Category 0 = empty 
-    Returns a DataFrame with columns: date, occupancy_rate.
+    Returns a DataFrame indexed by date with occupancy_rate and engineered features.
     """
     with open(annotations_path) as f:
         coco = json.load(f)
@@ -39,4 +39,16 @@ def compute_occupancy(annotations_path):
     df = pd.DataFrame(records)
     daily = df.groupby("date")["occupied"].mean().reset_index()
     daily.columns = ["date", "occupancy_rate"]
+    daily = daily.sort_values("date")
+
+    # Lagged occupancy features
+    for lag in [1, 2, 3, 7]:
+        daily[f"occupancy_rate_lag_{lag}"] = daily["occupancy_rate"].shift(lag)
+
+    # Calendar feature: Monday=0, Sunday=6
+    daily["day_of_week"] = daily["date"].dt.dayofweek
+
+    # Short-term trend feature using a 7-day rolling mean
+    daily["occupancy_rate_roll7_mean"] = daily["occupancy_rate"].rolling(window=7).mean()
+
     return daily.set_index("date")
